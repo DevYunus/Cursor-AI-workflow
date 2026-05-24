@@ -26,7 +26,7 @@ alwaysApply: true
 
 Type these in Cursor chat:
 
-`/prime` · `/grill` · `/plan` · `/execute` · `/eval` · `/review` · `/handoff` · `/memory-update` · `/maintain-memory`
+`/prime` · `/prime-module` · `/grill` · `/plan` · `/execute` · `/eval` · `/review` · `/handoff` · `/memory-update` · `/maintain-memory`
 
 ## Where context lives
 

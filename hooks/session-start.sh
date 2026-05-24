@@ -50,7 +50,7 @@ build_context() {
   fi
 
   printf '## Slash skills (type /name in chat)\n'
-  printf '/prime · /grill · /plan · /execute · /eval · /review · /handoff · /memory-update · /maintain-memory\n\n'
+  printf '/prime · /prime-module · /grill · /plan · /execute · /eval · /review · /handoff · /memory-update · /maintain-memory\n\n'
   printf '## Always loaded\n'
   printf -- '- `.cursor/rules/000-project-context.mdc`\n'
   printf -- '- `AGENTS.md` in your app repo (maintained by /maintain-memory)\n'

@@ -15,6 +15,8 @@ Think of it as a daily rhythm for building with AI: **orient → clarify → pla
 | **Memory** (`memory/features/`, `AGENTS.md`) | Knowledge that survives across sessions |
 | **Hooks** | Session start context, session logs, commit hygiene, **maintain-memory** queue |
 
+Want the quick payoff first? Open `sample/README.md` for a runnable contact-form demo plus example artifacts from every workflow skill.
+
 ## Architecture
 
 Cursor discovers project-specific AI behavior from an app repo's `.cursor/` directory. This workflow can supply that directory in two ways: either by symlinking `.cursor` to a central `cursor-workflow/projects/<project>` folder, or by copying those files directly into the app repo.
@@ -32,7 +34,7 @@ Why symlinks exist: they let one version-controlled workflow repo serve many app
 
 How the pieces relate:
 
-- **Skills** are slash-command workflows such as `/prime`, `/grill`, `/plan`, and `/execute`.
+- **Skills** are slash-command workflows such as `/prime`, `/prime-module`, `/grill`, `/plan`, and `/execute`.
 - **Rules** are short Cursor instructions in `.cursor/rules/*.mdc`; `000-project-context.mdc` is always loaded.
 - **Docs and memory** give skills deeper project context on demand, usually under `.cursor/docs/` and `.cursor/memory/`.
 - **Hooks** run automatically on session and shell events. They surface context, append session notes, queue maintain-memory work, and guard commits in this workflow repo.
@@ -126,6 +128,7 @@ Type these in Cursor chat, in order, for any non-trivial task:
 
 ```
 /prime        →  where are we? (git, open work)
+/prime-module →  deep-dive one area (rules, docs, git, memory, prior plans)
 /grill        →  clarify requirements (7 questions → brief file)
 /plan         →  implementation plan + test gates
 /execute      →  code changes, test after each task
@@ -138,7 +141,8 @@ YOU commit    →  you run git, not the agent
 
 ```mermaid
 flowchart LR
-  A["/prime"] --> B["/grill"]
+  A["/prime"] --> A2["/prime-module optional"]
+  A2 --> B["/grill"]
   B --> C["/plan"]
   C --> D["/execute"]
   D --> E["/eval"]
@@ -156,6 +160,31 @@ flowchart LR
 
 ---
 
+## See the value right away
+
+The `sample/` folder is a complete tour:
+
+- `sample/tiny-contact-app/` is a tiny JavaScript contact form with a duplicate-submit test.
+- `sample/workflow-artifacts/00-skill-map.md` lists every skill/agent this repo offers.
+- `sample/workflow-artifacts/01-prime.md` through `10-maintain-memory.md` show the artifacts and decisions produced by the full loop.
+
+Run the sample app:
+
+```bash
+cd sample/tiny-contact-app
+npm test
+```
+
+Or install the workflow into the sample app:
+
+```bash
+APP_ROOT="$PWD/sample/tiny-contact-app" PROJECT=example ./install.sh --mode copy --apply
+```
+
+Then restart Cursor, open `sample/tiny-contact-app`, and try `/prime`, `/prime-module api`, and `/grill fix duplicate contact form emails`.
+
+---
+
 ## Example: fix duplicate contact-form emails
 
 Anyone who has built a web app has seen this: the contact form works, but users sometimes get **two confirmation emails** after one submit. Here’s the full workflow on that bug — no framework assumed beyond “you have a form and a mailer.”
@@ -166,9 +195,10 @@ Open your app in Cursor. In chat:
 
 ```
 /prime
+/prime-module api
 ```
 
-The agent reads recent commits and summarizes what’s in flight. You say:
+`/prime` reads recent commits and summarizes what’s in flight. If the bug is clearly in one area (API, auth, billing), add `/prime-module <slug>` — slug matches a file in `.cursor/rules/` (example: `api` → `api.mdc`). You say:
 
 > Fix duplicate confirmation emails on the contact form.
 
@@ -270,12 +300,13 @@ cursor-workflow/
 ├── install.sh / uninstall.sh
 ├── hooks.json.tmpl           → rendered to hooks.json at install
 ├── hooks/                    sessionStart, sessionEnd, maintain-memory, git commit guard
+├── sample/                   tiny app + skill output tour
 ├── templates/                brief, plan, handoff scaffolds
 ├── skills-cursor/            create-skill, create-rule, create-hook
 └── projects/
     └── example/              copy → projects/<your-app>
         ├── rules/            Tier-1 + optional Tier-2 .mdc
-        ├── skills/           /prime, /grill, /plan, …
+        ├── skills/           /prime, /prime-module, /grill, /plan, …
         ├── docs/             deep reference (loaded on demand)
         ├── memory/features/  durable per-feature knowledge
         ├── plans/            briefs, plans, reports

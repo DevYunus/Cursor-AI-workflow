@@ -1,0 +1,19 @@
+---
+description: HTTP API layer — routing, controllers/handlers, request validation, and response shape. Example Tier-2 rule for /prime-module api.
+globs: src/api/**,routes/**,app/Http/Controllers/**
+alwaysApply: false
+---
+
+# API module — example Tier-2 rules
+
+> Replace globs and bullets with your project's real paths and conventions.
+
+## Rules
+
+1. **Validate at the boundary** — Parse and reject bad input in the handler layer before business logic.
+2. **Auth before work** — Check authorization in the same code path that serves the endpoint, not only in middleware you assume ran.
+3. **Stable responses** — Do not leak stack traces or internal IDs in production error payloads.
+
+## Deep dive
+
+@.cursor/docs/modules/api.md

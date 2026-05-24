@@ -9,6 +9,7 @@ RUN_ROOT="$(mktemp -d "$SMOKE_ROOT/cursor-workflow-smoke.XXXXXX")"
 FAKE_HOME="$RUN_ROOT/home"
 SYMLINK_APP="$RUN_ROOT/workflow-smoke-test"
 COPY_APP="$RUN_ROOT/workflow-copy-smoke-test"
+SAMPLE_APP="$WORKFLOW_ROOT/sample/tiny-contact-app"
 
 pass() { printf 'ok - %s\n' "$1"; }
 fail() { printf 'not ok - %s\n' "$1" >&2; exit 1; }
@@ -33,6 +34,9 @@ const fs = require('fs');
 if (!fs.existsSync('.cursor/skills/prime/SKILL.md')) {
   throw new Error('prime skill is not discoverable');
 }
+if (!fs.existsSync('.cursor/skills/prime-module/SKILL.md')) {
+  throw new Error('prime-module skill is not discoverable');
+}
 if (!fs.existsSync('.cursor/rules/000-project-context.mdc')) {
   throw new Error('project rule is not discoverable');
 }
@@ -47,11 +51,21 @@ mkdir -p "$FAKE_HOME"
 make_tiny_app "$SYMLINK_APP"
 make_tiny_app "$COPY_APP"
 
+assert_file "$WORKFLOW_ROOT/sample/README.md"
+assert_file "$WORKFLOW_ROOT/sample/workflow-artifacts/00-skill-map.md"
+assert_file "$SAMPLE_APP/package.json"
+(
+  cd "$SAMPLE_APP"
+  npm test --silent >/dev/null
+)
+pass "sample app"
+
 HOME="$FAKE_HOME" APP_ROOT="$SYMLINK_APP" PROJECT=example "$WORKFLOW_ROOT/install.sh" --apply >/dev/null
 assert_symlink "$SYMLINK_APP/.cursor"
 assert_symlink "$FAKE_HOME/.cursor/hooks.json"
 json_ok "$WORKFLOW_ROOT/hooks.json"
 assert_file "$SYMLINK_APP/.cursor/skills/prime/SKILL.md"
+assert_file "$SYMLINK_APP/.cursor/skills/prime-module/SKILL.md"
 assert_contains ".cursor" "$SYMLINK_APP/.git/info/exclude"
 (
   cd "$SYMLINK_APP"

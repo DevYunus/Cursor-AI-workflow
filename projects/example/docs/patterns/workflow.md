@@ -3,8 +3,10 @@
 This project uses cursor-workflow skills. The daily loop:
 
 ```
-/prime → /grill → /plan → /execute → /eval → /review → you commit → /memory-update
+/prime → /prime-module <slug> → /grill → /plan → /execute → /eval → /review → you commit → /memory-update
 ```
+
+Use `/prime-module api` (or your rule slug) when work is scoped to one area — loads Tier-2 rule + scout doc + scoped git log.
 
 ## Artifacts
 
