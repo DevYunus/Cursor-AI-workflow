@@ -1,0 +1,48 @@
+---
+description: Tier-1 project rules. Hard constraints loaded on every turn. Customize stack, conventions, and paths for your codebase.
+alwaysApply: true
+---
+
+# Project context — Tier-1 rules
+
+> Always loaded. Keep this file short (~80 lines). Put domain details in path-scoped rules under `.cursor/rules/` and `.cursor/docs/`.
+
+## Stack
+
+<!-- Edit for your project -->
+- Language / framework: _e.g. Node 20 + Express, Python 3.12 + Django, etc._
+- Tests: _e.g. pytest, jest, go test_
+- Package manager: _npm / pnpm / pip / cargo_
+
+## Core principles
+
+1. **Read before write** — Cite `path/to/file:LINE` for claims about this codebase.
+2. **Interrogate before code** — Non-trivial work starts with `/grill`, then `/plan`, then `/execute`.
+3. **Evidence, not vibes** — Tests pass and success criteria are checked before calling work done.
+4. **You commit, not the agent** — The agent edits files; you run `git add`, `git commit`, and `git push`.
+5. **Most-specific rule wins** — Path-scoped `.mdc` rules override this file when their globs match.
+
+## Workflow skills
+
+Type these in Cursor chat:
+
+`/prime` · `/grill` · `/plan` · `/execute` · `/eval` · `/review` · `/handoff` · `/memory-update` · `/maintain-memory`
+
+## Where context lives
+
+| Layer | Location | When it loads |
+|---|---|---|
+| Tier-1 | `.cursor/rules/000-project-context.mdc` | Every turn |
+| Tier-2 | `.cursor/rules/*.mdc` (path globs) | When you edit matching files |
+| Tier-3 | `.cursor/docs/**/*.md` | When a rule `@`-references them |
+| Session memory | `AGENTS.md` in app repo | Every turn (auto-maintained) |
+| Feature memory | `.cursor/memory/features/<slug>/` | On demand via skills |
+
+## Customize next
+
+1. Edit this file with your stack and conventions.
+2. Add Tier-2 rules: `.cursor/rules/api.mdc`, `testing.mdc`, etc.
+3. Copy `memory/features/contact-form/` → `memory/features/<your-feature>/` (or start fresh).
+4. Add deep docs under `.cursor/docs/` and reference them from rules with `@.cursor/docs/...`.
+
+@.cursor/docs/patterns/workflow.md

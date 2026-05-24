@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "_doc": "Cursor hooks config. install.sh renders hook command paths into hooks.json. Edit this template, not generated hooks.json files.",
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "__HOOKS_DIR__/session-start.sh",
+        "timeout": 10,
+        "type": "command"
+      }
+    ],
+    "sessionEnd": [
+      {
+        "command": "__HOOKS_DIR__/session-end.sh",
+        "timeout": 30,
+        "type": "command"
+      }
+    ],
+    "stop": [
+      {
+        "command": "__HOOKS_DIR__/maintain-memory.sh",
+        "timeout": 15,
+        "type": "command"
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "__HOOKS_DIR__/before-shell-execution.sh",
+        "matcher": "git commit",
+        "timeout": 10,
+        "failClosed": true,
+        "type": "command"
+      }
+    ],
+    "afterShellExecution": [
+      {
+        "command": "__HOOKS_DIR__/after-shell-execution.sh",
+        "matcher": "git commit",
+        "timeout": 5,
+        "type": "command"
+      }
+    ]
+  }
+}

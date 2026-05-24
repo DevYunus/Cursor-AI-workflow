@@ -1,0 +1,6 @@
+hooks.json
+projects/*/hooks/state/maintain-memory-pending.jsonl
+projects/*/memory/sessions/
+
+# AGENTS.md is local continual-learning output in the app repo, not the workflow repo
+AGENTS.md
