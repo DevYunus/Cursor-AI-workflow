@@ -1,0 +1,8 @@
+{
+  "name": "project-tasks-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node test/project-tasks.test.js"
+  }
+}

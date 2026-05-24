@@ -24,3 +24,4 @@ Loaded when you edit files matching `api.mdc` globs, or when you run `/prime-mod
 ## Related memory
 
 - `.cursor/memory/features/contact-form/` — example feature that touches the public contact endpoint
+- `.cursor/memory/features/project-tasks/` — richer sample with permissions, validation, state transitions, and audit logs

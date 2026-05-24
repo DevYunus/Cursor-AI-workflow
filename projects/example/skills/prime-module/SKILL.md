@@ -72,7 +72,7 @@ If globs use `**`, derive a reasonable directory prefix rather than passing raw 
 If `.cursor/memory/features/<slug>/` exists, read:
 
 - `overview.md` — what this area does
-- `changelog.md` — last ~30 lines (FC-style: up to ~200 if dense)
+- `changelog.md` — last ~30 lines (up to ~200 if dense)
 - `bugs.md` — recent post-mortems and known landmines
 - `lessons.md` — patterns to reuse
 - `open-questions.md` — unresolved decisions

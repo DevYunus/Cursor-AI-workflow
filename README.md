@@ -15,7 +15,7 @@ Think of it as a daily rhythm for building with AI: **orient → clarify → pla
 | **Memory** (`memory/features/`, `AGENTS.md`) | Knowledge that survives across sessions |
 | **Hooks** | Session start context, session logs, commit hygiene, **maintain-memory** queue |
 
-Want the quick payoff first? Open `sample/README.md` for a runnable contact-form demo plus example artifacts from every workflow skill.
+Want the quick payoff first? Open `sample/README.md` for a runnable project/task demo plus example artifacts from every workflow skill.
 
 ## Architecture
 
@@ -48,7 +48,7 @@ How the pieces relate:
 Use this when you want all project workflow files and memories in one central repo. This is the default.
 
 ```bash
-git clone https://github.com/YOUR_USER/cursor-workflow.git ~/cursor-workflow
+git clone https://github.com/DevYunus/Cursor-AI-workflow.git ~/cursor-workflow
 cd ~/cursor-workflow
 
 # Preview
@@ -76,7 +76,7 @@ The installer adds `.cursor` to `my-app/.git/info/exclude`, so the symlink stays
 Use this when the app repo should own and commit its Cursor workflow directly. No `.cursor` symlink is created.
 
 ```bash
-git clone https://github.com/YOUR_USER/cursor-workflow.git ~/cursor-workflow
+git clone https://github.com/DevYunus/Cursor-AI-workflow.git ~/cursor-workflow
 cd ~/cursor-workflow
 
 # Preview
@@ -164,30 +164,33 @@ flowchart LR
 
 The `sample/` folder is a complete tour:
 
-- `sample/tiny-contact-app/` is a tiny JavaScript contact form with a duplicate-submit test.
+- `sample/project-tasks-app/` is a richer SaaS workflow with projects, tasks, roles, due dates, status transitions, and audit logs.
+- `sample/workflow-artifacts/project-tasks/` shows how the full workflow handles that feature.
 - `sample/workflow-artifacts/00-skill-map.md` lists every skill/agent this repo offers.
-- `sample/workflow-artifacts/01-prime.md` through `10-maintain-memory.md` show the artifacts and decisions produced by the full loop.
+- `sample/tiny-contact-app/` remains as a tiny smoke demo.
 
-Run the sample app:
+Run the flagship sample app:
 
 ```bash
-cd sample/tiny-contact-app
+cd sample/project-tasks-app
 npm test
 ```
 
 Or install the workflow into the sample app:
 
 ```bash
-APP_ROOT="$PWD/sample/tiny-contact-app" PROJECT=example ./install.sh --mode copy --apply
+APP_ROOT="$PWD/sample/project-tasks-app" PROJECT=example ./install.sh --mode copy --apply
 ```
 
-Then restart Cursor, open `sample/tiny-contact-app`, and try `/prime`, `/prime-module api`, and `/grill fix duplicate contact form emails`.
+Then restart Cursor, open `sample/project-tasks-app`, and try `/prime`, `/prime-module api`, and `/grill build project and task creation`.
 
 ---
 
-## Example: fix duplicate contact-form emails
+## Example: build project and task management
 
-Anyone who has built a web app has seen this: the contact form works, but users sometimes get **two confirmation emails** after one submit. Here’s the full workflow on that bug — no framework assumed beyond “you have a form and a mailer.”
+The flagship sample is a small SaaS workflow: managers can create projects, add tasks, assign them to workspace members, enforce due dates, move tasks through valid statuses, and write audit logs.
+
+That is big enough for the whole workflow. It has permissions, validation, state transitions, side effects, and regression tests.
 
 ### 1. Orient (~1 min)
 
@@ -198,25 +201,25 @@ Open your app in Cursor. In chat:
 /prime-module api
 ```
 
-`/prime` reads recent commits and summarizes what’s in flight. If the bug is clearly in one area (API, auth, billing), add `/prime-module <slug>` — slug matches a file in `.cursor/rules/` (example: `api` → `api.mdc`). You say:
+`/prime` reads recent commits and summarizes what’s in flight. `/prime-module api` rehydrates module context: rules, docs, git history, feature memory, and prior plans. You say:
 
-> Fix duplicate confirmation emails on the contact form.
+> Build project and task creation for a workspace app.
 
 ### 2. Interrogate (~5 min)
 
 ```
-/grill fix-duplicate-contact-email
+/grill build-project-task-management
 ```
 
 The agent walks **7 categories** (one question at a time):
 
-1. **Problem** — “Users get two identical confirmation emails after one submit.”
-2. **Success criteria** — “Exactly one email per successful form submission.”
-3. **Scope IN** — idempotency on send; test for double-submit.
-4. **Scope OUT** — not changing email copy or admin notification routing.
-5. **Code impact** — `ContactController`, mail service, maybe the frontend submit handler.
-6. **Risks** — over-aggressive dedup blocks legitimate resends.
-7. **Rollback** — revert PR; dedup table is additive.
+1. **Problem** — “Users need project and task creation inside a workspace.”
+2. **Success criteria** — managers/admins create projects; task assignees must be members; audit logs exist.
+3. **Scope IN** — in-memory domain logic, role checks, due-date validation, status transitions, tests.
+4. **Scope OUT** — UI, database persistence, auth middleware, notifications.
+5. **Code impact** — `sample/project-tasks-app/src/project-tasks.js`, `test/project-tasks.test.js`.
+6. **Risks** — privilege escalation, tasks assigned outside workspace, missing audit entries.
+7. **Rollback** — remove the sample folder and workflow artifacts.
 
 When you’re satisfied:
 
@@ -224,7 +227,7 @@ When you’re satisfied:
 ENOUGH
 ```
 
-It writes `plans/fix-duplicate-contact-email.brief.md` in your workflow repo.
+It writes `plans/build-project-task-management.brief.md` in your workflow repo.
 
 ### 3. Plan (~3 min)
 
@@ -232,11 +235,12 @@ It writes `plans/fix-duplicate-contact-email.brief.md` in your workflow repo.
 /plan
 ```
 
-Four explore sub-agents run in parallel: which files change, which tests exist, prior bugs in `memory/features/contact-form/`. You get `plans/fix-duplicate-contact-email.plan.md` with tasks like:
+Four explore sub-agents run in parallel: which files change, which interfaces are affected, which tests exist, and what prior memory says. You get `plans/build-project-task-management.plan.md` with tasks like:
 
-- Task 1: Add idempotency key column + migration
-- Task 2: Guard send in mail service
-- Task 3: Test double POST returns one email
+- Task 1: Create the sample app shell
+- Task 2: Implement project creation with role + uniqueness validation
+- Task 3: Implement task creation with assignment + due-date validation
+- Task 4: Implement status transitions and audit logging
 
 Each task lists a **test command** (`npm test`, `pytest`, etc. — you set this in your Tier-1 rule).
 
@@ -254,7 +258,7 @@ The agent edits files, runs tests after **each** task, and writes `execution-rep
 /eval
 ```
 
-Tests might pass while the product still fails (e.g. test only covers single click, not double-click). `/eval` checks the brief’s success criteria and writes PASS/FAIL per criterion.
+Tests might pass while the product still fails (for example, task creation works but audit logs are missing). `/eval` checks the brief’s success criteria and writes PASS/FAIL per criterion.
 
 ### 6. Review (~3 min)
 
@@ -266,7 +270,7 @@ Four reviewers (correctness, tests, security, maintainability) scan `git diff`. 
 
 ```bash
 git add .
-git commit -m "fix: dedupe contact form confirmation emails"
+git commit -m "feat: add project task workflow sample"
 git push
 ```
 
@@ -276,9 +280,9 @@ git push
 /memory-update
 ```
 
-Appends to `memory/features/contact-form/changelog.md` and `lessons.md`:
+Appends to `memory/features/project-tasks/changelog.md` and `lessons.md`:
 
-> Double-submit + API retry both hit the mailer — use an idempotency key scoped to `(email, form_id, day)`.
+> State-changing SaaS workflows need permissions, validation, status transitions, and audit logs in the brief before implementation.
 
 End of session:
 
@@ -286,9 +290,9 @@ End of session:
 /maintain-memory
 ```
 
-Promotes cross-cutting patterns into `AGENTS.md` (e.g. “all user-facing sends from multiple entry points need idempotency”).
+Promotes cross-cutting patterns into `AGENTS.md` (e.g. “role-gated workflows need explicit negative tests and audit checks”).
 
-**Total:** ~30 minutes for a bug that often takes longer when you “just fix it” and miss the double-submit edge case.
+**Total:** ~45 minutes for a feature that is easy to under-spec if you skip requirements and review.
 
 ---
 
@@ -300,7 +304,7 @@ cursor-workflow/
 ├── install.sh / uninstall.sh
 ├── hooks.json.tmpl           → rendered to hooks.json at install
 ├── hooks/                    sessionStart, sessionEnd, maintain-memory, git commit guard
-├── sample/                   tiny app + skill output tour
+├── sample/                   runnable demos + skill output tour
 ├── templates/                brief, plan, handoff scaffolds
 ├── skills-cursor/            create-skill, create-rule, create-hook
 └── projects/

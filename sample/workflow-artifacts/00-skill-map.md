@@ -2,6 +2,8 @@
 
 This repo ships two kinds of skills.
 
+The flagship walkthrough is `project-tasks/`: a project/task creation feature with roles, assignment validation, due dates, status transitions, and audit logs.
+
 ## Daily workflow skills
 
 | Skill | Value | Output |

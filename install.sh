@@ -62,7 +62,15 @@ esac
 
 say()    { printf "  %s\n" "$1"; }
 header() { printf "\n%s\n" "$1"; }
-do_it()  { if [[ $DRY_RUN -eq 1 ]]; then echo "  [dry] $*"; else eval "$*"; fi }
+run_cmd() {
+  if [[ $DRY_RUN -eq 1 ]]; then
+    printf "  [dry]"
+    printf " %q" "$@"
+    printf "\n"
+  else
+    "$@"
+  fi
+}
 
 render_hooks_json() {
   local out="$1" hooks_dir="$2"
@@ -74,9 +82,17 @@ render_hooks_json() {
     say "[dry] render hooks.json.tmpl → $out with HOOKS_DIR=$hooks_dir"
     return 0
   fi
-  mkdir -p "$(dirname "$out")"
-  sed "s|__HOOKS_DIR__|$hooks_dir|g" "$WORKFLOW_ROOT/hooks.json.tmpl" > "$out"
-  python3 -c "import json; json.load(open('$out'))"
+  python3 - "$WORKFLOW_ROOT/hooks.json.tmpl" "$out" "$hooks_dir" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+template_path, out_path, hooks_dir = sys.argv[1:4]
+text = Path(template_path).read_text().replace("__HOOKS_DIR__", hooks_dir)
+Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+Path(out_path).write_text(text)
+json.loads(text)
+PY
   say "rendered $out"
 }
 
@@ -131,8 +147,8 @@ link() {
     say "WARN: $dst exists and is not a symlink — skip"
     return 0
   fi
-  do_it "mkdir -p \"$(dirname "$dst")\""
-  do_it "ln -s \"$src\" \"$dst\""
+  run_cmd mkdir -p "$(dirname "$dst")"
+  run_cmd ln -s "$src" "$dst"
   say "link $dst -> $src"
 }
 
@@ -153,7 +169,7 @@ if [[ ! -d "$project_dir" ]]; then
 fi
 
 header "Stage 1 — skills-cursor → ~/.cursor"
-do_it "mkdir -p \"$CURSOR_ROOT/skills-cursor\""
+run_cmd mkdir -p "$CURSOR_ROOT/skills-cursor"
 if [[ -d "$WORKFLOW_ROOT/skills-cursor" ]]; then
   for dir in "$WORKFLOW_ROOT/skills-cursor"/*/; do
     [[ -d "$dir" ]] || continue
@@ -179,7 +195,7 @@ else
   if [[ "$INSTALL_MODE" == "symlink" ]]; then
     if [[ -e "$app_cursor" && ! -L "$app_cursor" ]]; then
       backup="$app_cursor.pre-workflow-$(date +%Y%m%d-%H%M%S)"
-      do_it "mv \"$app_cursor\" \"$backup\""
+      run_cmd mv "$app_cursor" "$backup"
       say "backed up existing .cursor → $backup"
     fi
     link "$project_dir" "$app_cursor"
@@ -192,7 +208,7 @@ else
   else
     if [[ -L "$app_cursor" ]]; then
       backup="$app_cursor.pre-workflow-$(date +%Y%m%d-%H%M%S)"
-      do_it "mv \"$app_cursor\" \"$backup\""
+      run_cmd mv "$app_cursor" "$backup"
       say "backed up existing .cursor symlink → $backup"
     fi
     copy_contents "$project_dir" "$app_cursor"

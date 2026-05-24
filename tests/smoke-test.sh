@@ -4,12 +4,13 @@
 set -euo pipefail
 
 WORKFLOW_ROOT="${WORKFLOW_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-SMOKE_ROOT="${SMOKE_ROOT:-/Users/yunusshaikh/Projects}"
+SMOKE_ROOT="${SMOKE_ROOT:-${TMPDIR:-/tmp}}"
 RUN_ROOT="$(mktemp -d "$SMOKE_ROOT/cursor-workflow-smoke.XXXXXX")"
 FAKE_HOME="$RUN_ROOT/home"
 SYMLINK_APP="$RUN_ROOT/workflow-smoke-test"
 COPY_APP="$RUN_ROOT/workflow-copy-smoke-test"
 SAMPLE_APP="$WORKFLOW_ROOT/sample/tiny-contact-app"
+FLAGSHIP_SAMPLE_APP="$WORKFLOW_ROOT/sample/project-tasks-app"
 
 pass() { printf 'ok - %s\n' "$1"; }
 fail() { printf 'not ok - %s\n' "$1" >&2; exit 1; }
@@ -53,12 +54,20 @@ make_tiny_app "$COPY_APP"
 
 assert_file "$WORKFLOW_ROOT/sample/README.md"
 assert_file "$WORKFLOW_ROOT/sample/workflow-artifacts/00-skill-map.md"
+assert_file "$WORKFLOW_ROOT/sample/workflow-artifacts/project-tasks/README.md"
+assert_file "$FLAGSHIP_SAMPLE_APP/package.json"
+(
+  cd "$FLAGSHIP_SAMPLE_APP"
+  npm test --silent >/dev/null
+)
+pass "flagship sample app"
+
 assert_file "$SAMPLE_APP/package.json"
 (
   cd "$SAMPLE_APP"
   npm test --silent >/dev/null
 )
-pass "sample app"
+pass "tiny sample app"
 
 HOME="$FAKE_HOME" APP_ROOT="$SYMLINK_APP" PROJECT=example "$WORKFLOW_ROOT/install.sh" --apply >/dev/null
 assert_symlink "$SYMLINK_APP/.cursor"
